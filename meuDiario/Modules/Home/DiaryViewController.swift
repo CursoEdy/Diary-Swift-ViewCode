@@ -16,7 +16,11 @@ class DiaryViewController: UIViewController {
         }
     }
     
-    private let tableView = UITableView()
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.separatorStyle = .none
+        return tableView
+    }()
     
     private let emptyLabel: UILabel = {
         let label = UILabel()
@@ -52,6 +56,7 @@ class DiaryViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(DiaryEntryCell.self, forCellReuseIdentifier: DiaryEntryCell.identifier)
         
         [tableView, addButton, emptyLabel].forEach {
             view.addSubview($0)
@@ -119,14 +124,9 @@ extension DiaryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let entry = entries[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = entry.title.isEmpty ? "Sem título" : entry.title
-        content.secondaryText = DateFormatter.localizedString(from: entry.date, dateStyle: .short, timeStyle: .short)
-        
-        cell.contentConfiguration = content
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: DiaryEntryCell.identifier, for: indexPath) as! DiaryEntryCell
+        cell.selectionStyle = .none
+        cell.configure(with: entry)
         return cell
     }
     
