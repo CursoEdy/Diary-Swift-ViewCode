@@ -2,7 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23507" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="DiaryEntryEntity" representedClassName="DiaryEntryEntity" syncable="YES" codeGenerationType="class">
         <attribute name="content" optional="YES" attributeType="String"/>
-        <attribute name="data" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>

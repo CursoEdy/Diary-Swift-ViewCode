@@ -64,9 +64,9 @@ class DiaryEntryCell: UITableViewCell {
         ])
     }
     
-    func configure(with entry: DiaryEntry) {
-        titleLabel.text = entry.title.isEmpty ? "Sem título" : entry.title
-        dateLabel.text = DateFormatter.localizedString(from: entry.date, dateStyle: .medium, timeStyle: .short)
-        previewLabel.text = entry.content.isEmpty ? "Sem Conteúdo" : entry.content
+    func configure(with entry: DiaryEntryEntity) {
+        titleLabel.text = entry.title
+        dateLabel.text = entry.date?.formatted()
+        previewLabel.text = entry.content
     }
 }

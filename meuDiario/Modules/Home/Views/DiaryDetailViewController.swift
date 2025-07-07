@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import CoreData
 
 class DiaryDetailViewController: UIViewController {
     
-    private var entry: DiaryEntry
-    private let isNew: Bool
-    private let onSave: (DiaryEntry) -> Void
+    private var entry: DiaryEntryEntity
+//    private let isNew: Bool
+    private let context: NSManagedObjectContext
+    private let onSave: () -> Void
     
     private let titleTextField: UITextField = {
         let textField = UITextField()
@@ -39,9 +41,9 @@ class DiaryDetailViewController: UIViewController {
         return button
     }()
     
-    init(entry: DiaryEntry, isNew: Bool, onSave: @escaping (DiaryEntry) -> Void) {
+    init(entry: DiaryEntryEntity, context: NSManagedObjectContext, onSave: @escaping () -> Void) {
         self.entry = entry
-        self.isNew = isNew
+        self.context = context
         self.onSave = onSave
         super.init(nibName: nil, bundle: nil)
     }
@@ -57,7 +59,7 @@ class DiaryDetailViewController: UIViewController {
     }
     
     private func setupView() {
-        title = isNew ? "Nova Entrada" : "Editar Entrada"
+        title = "Editar Entrada"
         view.backgroundColor = .white
         
         [titleTextField, contentTextView, saveButton].forEach{
@@ -95,7 +97,12 @@ class DiaryDetailViewController: UIViewController {
         entry.title = title
         entry.content = contentTextView.text
         
-        onSave(entry)
-        navigationController?.popViewController(animated: true)
+        do {
+            try context.save()
+            onSave()
+            navigationController?.popViewController(animated: true)
+        } catch {
+            print("erro ao savar entrada: \(error)")
+        }
     }
 }

@@ -6,15 +6,13 @@
 //
 
 import UIKit
+import CoreData
 
 class DiaryViewController: UIViewController {
     
-    private var entries: [DiaryEntry] = [] {
-        didSet {
-            saveEntries()
-            updateEmptyStaleLabel()
-        }
-    }
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    private var entries: [DiaryEntryEntity] = []
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -85,30 +83,43 @@ class DiaryViewController: UIViewController {
     }
     
     @objc private func addEntryTapped() {
-        let newEntry = DiaryEntry(id: UUID(), title: "Sem titulo", content: "", date: Date())
-        entries.insert(newEntry, at: 0)
-        tableView.reloadData()
-        updateEmptyStaleLabel()
+        let newEntry = DiaryEntryEntity(context: context)
+        newEntry.id = UUID()
+        newEntry.title = "Sem titulo"
+        newEntry.content = ""
+        newEntry.date = Date()
         
-        let detailVC = DiaryDetailViewController(entry: newEntry, isNew: true) { [weak self] updateEntry in
-            self?.entries[0] = updateEntry
-            self?.tableView.reloadData()
+        do {
+            try context.save()
+            loadEntries()
+        } catch {
+            print("Erro ao salvar: \(error)")
+        }
+        
+        let detailVC = DiaryDetailViewController(entry: newEntry, context: context) { [weak self] in
+            self?.loadEntries()
         }
         navigationController?.pushViewController(detailVC, animated: true)
     }
-    
-    private func saveEntries() {
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(entries) {
-            UserDefaults.standard.set(encoded, forKey: "diaryEntries")
-        }
-    }
+//    
+//    private func saveEntries() {
+//        let encoder = JSONEncoder()
+//        if let encoded = try? encoder.encode(entries) {
+//            UserDefaults.standard.set(encoded, forKey: "diaryEntries")
+//        }
+//    }
     
     private func loadEntries() {
-        if let savedData = UserDefaults.standard.data(forKey: "diaryEntries"),
-           let decoded = try? JSONDecoder().decode([DiaryEntry].self, from: savedData) {
-            entries = decoded
+        let request: NSFetchRequest<DiaryEntryEntity> = DiaryEntryEntity.fetchRequest()
+        let sort = NSSortDescriptor(key: "date", ascending: false) // mais recente primeiro
+        request.sortDescriptors = [sort]
+        
+        do {
+            entries = try context.fetch(request)
+        } catch {
+            print("Erro ao carregar entradas: \(error)")
         }
+        tableView.reloadData()
         updateEmptyStaleLabel()
     }
     
@@ -133,9 +144,8 @@ extension DiaryViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let entry = entries[indexPath.row]
         
-        let detailVC = DiaryDetailViewController(entry: entry, isNew: true) { [weak self] updateEntry in
-            self?.entries[indexPath.row] = updateEntry
-            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+        let detailVC = DiaryDetailViewController(entry: entry, context: context) { [weak self] in
+            self?.loadEntries()
         }
         navigationController?.pushViewController(detailVC, animated: true)
         
@@ -143,9 +153,16 @@ extension DiaryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Exluir") { [weak self] _, _, completion in
-            self?.entries.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            self?.updateEmptyStaleLabel()
+            guard let self = self else { return }
+            let entry = self.entries[indexPath.row]
+            self.context.delete(entry)
+            
+            do {
+                try self.context.save()
+                self.loadEntries()
+            } catch {
+                print("Erro ao excluir: \(error)")
+            }
             completion(true)
         }
         
