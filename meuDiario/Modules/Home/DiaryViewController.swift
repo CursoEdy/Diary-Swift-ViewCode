@@ -111,7 +111,7 @@ class DiaryViewController: UIViewController {
     
     private func loadEntries() {
         let request: NSFetchRequest<DiaryEntryEntity> = DiaryEntryEntity.fetchRequest()
-        let sort = NSSortDescriptor(key: "date", ascending: false) // mais recente primeiro
+        let sort = NSSortDescriptor(key: "date", ascending: true) // mais recente ultimo
         request.sortDescriptors = [sort]
         
         do {
@@ -159,11 +159,14 @@ extension DiaryViewController: UITableViewDelegate, UITableViewDataSource {
             
             do {
                 try self.context.save()
-                self.loadEntries()
+                self.entries.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                self.updateEmptyStaleLabel()
+                completion(true)
             } catch {
                 print("Erro ao excluir: \(error)")
+                completion(false)
             }
-            completion(true)
         }
         
         return UISwipeActionsConfiguration(actions: [deleteAction])

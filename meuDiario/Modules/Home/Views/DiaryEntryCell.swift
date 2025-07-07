@@ -33,6 +33,14 @@ class DiaryEntryCell: UITableViewCell {
         return label
     }()
     
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+//        formatter.dateFormat = "dd/MM/yyyy - HH:mm" // 07/07/1997 - 10:09
+//        formatter.dateFormat = "EEEE, dd MMM yy" // Segunda-feira, 07 Jul 25
+        formatter.dateFormat = "dd MMM yyyy, HH:mm" // 07 Jul 2025, 10:09
+        return formatter
+    }()
+    
     //MARK: inicialização
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -66,7 +74,11 @@ class DiaryEntryCell: UITableViewCell {
     
     func configure(with entry: DiaryEntryEntity) {
         titleLabel.text = entry.title
-        dateLabel.text = entry.date?.formatted()
         previewLabel.text = entry.content
+        if let date  = entry.date {
+            dateLabel.text = dateFormatter.string(from: date)
+        } else {
+            dateLabel.text = "Data desconhecida."
+        }
     }
 }
