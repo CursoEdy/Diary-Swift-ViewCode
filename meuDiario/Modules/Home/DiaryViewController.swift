@@ -39,10 +39,15 @@ class DiaryViewController: UIViewController {
     
     private let addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Adicionar Entrada", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.layer.cornerRadius = 10
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        button.setImage(UIImage(systemName: "plus"), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemBlue.withAlphaComponent(0.7)
+        button.layer.cornerRadius = 30
+        button.clipsToBounds = true
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 1
+        button.layer.shadowOffset = CGSize(width: 6, height: 4)
+        button.layer.shadowRadius = 4
         return button
     }()
 
@@ -56,7 +61,6 @@ class DiaryViewController: UIViewController {
     
     
     private func setupView() {
-        title = "Meu diário"
         view.backgroundColor = .white
         tableView.delegate = self
         tableView.dataSource = self
@@ -73,19 +77,23 @@ class DiaryViewController: UIViewController {
     }
     
     private func setupConstraints() {
+        let LeadingConstant = CGFloat(16)
+        let trailingConstant = CGFloat(-16)
+        let widthHeight = CGFloat(60)
+        
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: LeadingConstant),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailingConstant),
             
             tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: LeadingConstant),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailingConstant),
             tableView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
             
-            addButton.heightAnchor.constraint(equalToConstant: 44),
-            addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            addButton.heightAnchor.constraint(equalToConstant: widthHeight),
+            addButton.widthAnchor.constraint(equalToConstant: widthHeight),
+            addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
             
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),

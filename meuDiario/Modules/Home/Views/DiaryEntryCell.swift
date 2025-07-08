@@ -14,20 +14,21 @@ class DiaryEntryCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18)
+        label.textColor = .systemBlue.withAlphaComponent(0.8)
         label.numberOfLines = 1
         return label
     }()
     
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 12)
         label.textColor = .darkGray
         return label
     }()
     
     private let previewLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14)
+        label.font = .systemFont(ofSize: 12)
         label.textColor = .gray
         label.numberOfLines = 2
         return label
