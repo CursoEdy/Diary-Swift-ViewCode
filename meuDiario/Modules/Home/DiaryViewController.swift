@@ -14,6 +14,13 @@ class DiaryViewController: UIViewController {
     
     private var entries: [DiaryEntryEntity] = []
     
+    private let searchBar: UISearchBar = {
+        let search = UISearchBar()
+        search.placeholder = "buscar por um título..."
+        search.searchBarStyle = .minimal
+        return search
+    }()
+    
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -55,8 +62,9 @@ class DiaryViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.register(DiaryEntryCell.self, forCellReuseIdentifier: DiaryEntryCell.identifier)
+        searchBar.delegate = self
         
-        [tableView, addButton, emptyLabel].forEach {
+        [tableView, addButton, emptyLabel, searchBar].forEach {
             view.addSubview($0)
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -66,7 +74,11 @@ class DiaryViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
@@ -101,18 +113,15 @@ class DiaryViewController: UIViewController {
         }
         navigationController?.pushViewController(detailVC, animated: true)
     }
-//    
-//    private func saveEntries() {
-//        let encoder = JSONEncoder()
-//        if let encoded = try? encoder.encode(entries) {
-//            UserDefaults.standard.set(encoded, forKey: "diaryEntries")
-//        }
-//    }
     
-    private func loadEntries() {
+    private func loadEntries(searchText: String? = nil) {
         let request: NSFetchRequest<DiaryEntryEntity> = DiaryEntryEntity.fetchRequest()
         let sort = NSSortDescriptor(key: "date", ascending: true) // mais recente ultimo
         request.sortDescriptors = [sort]
+        
+        if let text = searchText, !text.isEmpty {
+            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
+        }
         
         do {
             entries = try context.fetch(request)
@@ -170,5 +179,18 @@ extension DiaryViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+}
+
+extension DiaryViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        loadEntries(searchText: searchText)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+//        searchBar.showsCancelButton = true
+        loadEntries()
     }
 }
