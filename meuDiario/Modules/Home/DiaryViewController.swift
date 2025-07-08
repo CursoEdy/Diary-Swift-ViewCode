@@ -86,7 +86,7 @@ class DiaryViewController: UIViewController {
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: LeadingConstant),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailingConstant),
             
-            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: LeadingConstant),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailingConstant),
             tableView.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -16),
